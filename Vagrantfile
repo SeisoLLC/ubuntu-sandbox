@@ -17,10 +17,10 @@ Vagrant.configure("2") do |config|
 
   # Setup Docker and give the vagrant user permissions
   config.vm.provision "shell", inline: <<-SHELL
-    apt update
-    apt upgrade
-    apt install -y docker.io \
-                   cgroup-tools
+    apt-get update
+    apt-get -y upgrade
+    apt-get install -y docker.io \
+                       cgroup-tools
     systemctl enable --now docker
     usermod -aG docker vagrant
   SHELL
