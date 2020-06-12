@@ -19,8 +19,8 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get -y upgrade
-    apt-get install -y docker.io \
-                       cgroup-tools
+    apt-get -y install --no-install-recommends docker.io \
+                                               cgroup-tools
     systemctl enable --now docker
     usermod -aG docker vagrant
   SHELL
