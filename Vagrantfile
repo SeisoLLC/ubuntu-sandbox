@@ -9,10 +9,15 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-20.04"
   config.vm.hostname = NAME
 
-  # Setup the vmware_desktop provider
-  config.vm.provider "vmware_desktop" do |v|
-    v.vmx["memsize"] = 4096
-    v.vmx["numvcpus"] = 2
+  # Setup the virtualbox provider
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = NAME
+
+    # Customize the VM resources
+    vb.memory = 4096
+    vb.cpus = 2
+
+    vb.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
   end
 
   # Setup Docker and give the vagrant user permissions
@@ -20,7 +25,8 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get -y upgrade
     apt-get -y install --no-install-recommends docker.io \
-                                               cgroup-tools
+                                               cgroup-tools \
+                                               libcap-ng-utils
     systemctl enable --now docker
     usermod -aG docker vagrant
   SHELL

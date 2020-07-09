@@ -37,8 +37,8 @@ function _feedback() {
     esac
 }
 
-vagrant up --provider vmware_desktop "$@"
-vagrant ssh
+vagrant up --provider virtualbox "$@"
+vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
 while [ -z "${prompt}" ]; do
     read -rp "Do you want to destroy the VM (Y/n)? " prompt
     case "${prompt}" in
