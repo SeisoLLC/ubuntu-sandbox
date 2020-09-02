@@ -20,15 +20,20 @@ Vagrant.configure("2") do |config|
     vb.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
   end
 
+  # bash vs zsh illustrative script
+  config.vm.provision "file", source: "./bash_vs_zsh.sh", destination: "${HOME}/bash_vs_zsh.sh"
+
   # Setup Docker and give the vagrant user permissions
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get -y upgrade
     apt-get -y install --no-install-recommends docker.io \
                                                cgroup-tools \
-                                               libcap-ng-utils
+                                               libcap-ng-utils \
+                                               zsh
     systemctl enable --now docker
     usermod -aG docker vagrant
+    cp /home/vagrant/bash_vs_zsh.sh /etc/profile.d/
   SHELL
 
   # Used to set the Vagrant machine name
