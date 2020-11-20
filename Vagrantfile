@@ -26,7 +26,8 @@ Vagrant.configure("2") do |config|
     apt-get -y upgrade
     apt-get -y install --no-install-recommends docker.io \
                                                cgroup-tools \
-                                               libcap-ng-utils
+                                               libcap-ng-utils \
+                                               bpftrace
     systemctl enable --now docker
     usermod -aG docker vagrant
   SHELL
