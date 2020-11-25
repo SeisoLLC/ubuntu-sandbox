@@ -32,7 +32,8 @@ Vagrant.configure("2") do |config|
     apt-get -y install --no-install-recommends docker.io \
                                                cgroup-tools \
                                                libcap-ng-utils \
-                                               bpftrace
+                                               bpftrace \
+                                               devscripts
     # gVisor
     URL=https://storage.googleapis.com/gvisor/releases/release/latest
     wget --quiet ${URL}/runsc ${URL}/runsc.sha512 \
