@@ -1,6 +1,6 @@
 # Ubuntu sandbox
 
-This is my personal Ubuntu sandbox vagrant machine
+An Ubuntu sandbox for experimentation and proof of concepts.
 
 ## Alternative docker runtimes
 If you want to `gVisor` as the docker runtime after starting the VM, use:
