@@ -4,8 +4,6 @@
 NAME = "ubuntu-sandbox"
 
 Vagrant.configure("2") do |config|
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
   config.vm.box = "bento/ubuntu-20.04"
   config.vm.hostname = NAME
 
@@ -27,14 +25,16 @@ Vagrant.configure("2") do |config|
     set -o errexit
     set -o pipefail
 
+    export DEBIAN_FRONTEND=noninteractive
     apt-get update
     apt-get -y upgrade
-    apt-get -y install --no-install-recommends docker.io \
+    apt-get -y install --no-install-recommends bpftrace \
                                                cgroup-tools \
-                                               libcap-ng-utils \
-                                               bpftrace \
-                                               devscripts
-    # gVisor
+                                               devscripts \
+                                               docker.io \
+                                               libcap-ng-utils
+
+    # gVisor and docker setup
     URL=https://storage.googleapis.com/gvisor/releases/release/latest
     wget --quiet ${URL}/runsc ${URL}/runsc.sha512 \
       ${URL}/gvisor-containerd-shim ${URL}/gvisor-containerd-shim.sha512 \
@@ -49,6 +49,12 @@ Vagrant.configure("2") do |config|
     systemctl enable --now docker
     systemctl restart docker
     usermod -aG docker vagrant
+
+    # Firewall setup
+    ufw default allow outgoing
+    ufw default deny incoming
+    ufw allow in on eth0 to any port 22 proto tcp
+    echo "y" | ufw enable
   SHELL
 
   # Used to set the Vagrant machine name
