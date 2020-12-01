@@ -54,6 +54,7 @@ Vagrant.configure("2") do |config|
     ufw default allow outgoing
     ufw default deny incoming
     ufw allow in on eth0 to any port 22 proto tcp
+    ufw logging medium
     echo "y" | ufw enable
   SHELL
 
