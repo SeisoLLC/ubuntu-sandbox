@@ -37,6 +37,7 @@ function _feedback() {
     esac
 }
 
+vagrant box update
 vagrant up --provider virtualbox "$@"
 vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
 while [ -z "${prompt}" ]; do
