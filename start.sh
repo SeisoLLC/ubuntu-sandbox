@@ -13,6 +13,7 @@ declare -r start=$(date +%s)
     declare -r DEFAULT='\033[0m'
 }
 prompt=""
+os="bento/ubuntu-20.04"
 
 function _quit() {
     exitCode="${1:-0}"
@@ -37,7 +38,8 @@ function _feedback() {
     esac
 }
 
-vagrant box update --box "bento/ubuntu-20.04" --provider virtualbox
+vagrant box add "${os}" --provider virtualbox 2>/dev/null || true
+vagrant box update --box "${os}" --provider virtualbox
 vagrant up --provider virtualbox "$@"
 vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
 while [ -z "${prompt}" ]; do
