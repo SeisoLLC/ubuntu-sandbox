@@ -32,7 +32,11 @@ Vagrant.configure("2") do |config|
                                                cgroup-tools \
                                                devscripts \
                                                docker.io \
-                                               libcap-ng-utils
+                                               python3-pip \
+                                               libcap-ng-utils\
+                                               tor \
+                                               torsocks
+    pip3 install pysocks
 
     # gVisor and docker setup
     URL=https://storage.googleapis.com/gvisor/releases/release/latest
