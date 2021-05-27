@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
     vb.name = NAME
 
     # Customize the VM resources
-    vb.memory = 4096
+    vb.memory = 8192
     vb.cpus = 2
 
     vb.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
@@ -37,6 +37,11 @@ Vagrant.configure("2") do |config|
                                                tor \
                                                torsocks
     pip3 install pysocks
+
+    # Kubernetes and related setup
+    snap install kubectl --classic
+    curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.11.0/kind-linux-amd64
+    chmod +x /usr/local/bin/kind
 
     # gVisor and docker setup
     URL=https://storage.googleapis.com/gvisor/releases/release/latest
