@@ -12,8 +12,13 @@ declare -r start=$(date +%s)
     declare -r INFO='\033[0m'
     declare -r DEFAULT='\033[0m'
 }
-prompt=""
-os="bento/ubuntu-20.04"
+PROMPT=""
+if [[ "$(uname -m)" == "arm64" ]]; then
+  OS="jeffnoxon/ubuntu-20.04-arm64"
+else
+  OS="bento/ubuntu-20.04"
+fi
+PROVIDER="parallels"
 
 function _quit() {
     exitCode="${1:-0}"
@@ -38,13 +43,45 @@ function _feedback() {
     esac
 }
 
-vagrant box add "${os}" --provider virtualbox 2>/dev/null || true
-vagrant box update --box "${os}" --provider virtualbox
-vagrant up --provider virtualbox "$@"
+function help() {
+  # Purposefully using tabs for the HEREDOC
+  cat <<- HEREDOC
+	Preferred Usage: ./${0##*/} [--provider=abc123]
+
+	--provider=abc123     Use the abc123 provider
+	-h|--help             Usage details
+	HEREDOC
+
+  exit 0
+}
+
+OPTSPEC=":h-:"
+while getopts "${OPTSPEC}" optchar; do
+  case "${optchar}" in
+    -)
+      case "${OPTARG}" in
+        help)
+          help ;;
+
+        provider)
+          PROVIDER="${!OPTIND}"; OPTIND=$(( OPTIND + 1 )) ;;
+
+        provider=*)
+          PROVIDER=${OPTARG#*=} ;;
+      esac ;;
+    h)
+      help ;;
+  esac
+done
+
+_feedback INFO "Using the provider ${PROVIDER}"
+vagrant box add "${OS}" --provider "${PROVIDER}" 2>/dev/null || true
+vagrant box update --box "${OS}" --provider "${PROVIDER}"
+OS="${OS}" vagrant up --provider "${PROVIDER}" "$@"
 vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
-while [ -z "${prompt}" ]; do
-    read -rp "Do you want to destroy the VM (Y/n)? " prompt
-    case "${prompt}" in
+while [ -z "${PROMPT}" ]; do
+    read -rp "Do you want to destroy the VM (Y/n)? " PROMPT
+    case "${PROMPT}" in
         ""|[yY]|[yY][eE][sS])
             _feedback INFO "Destroying the VM..."
             vagrant destroy -f
@@ -56,7 +93,7 @@ while [ -z "${prompt}" ]; do
             ;;
         *)
             _feedback WARNING "Unknown response"
-            prompt=""
+            PROMPT=""
             ;;
     esac
 done
