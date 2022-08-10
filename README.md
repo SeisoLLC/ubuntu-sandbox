@@ -18,7 +18,7 @@ To see how to run an alternative provider, use the help function:
 
 ### Alternative docker runtimes
 
-If you want to `gVisor` as the docker runtime after starting the VM, use:
+If you want to `gVisor` as the docker runtime after starting the VM, use the following.  **Note** This is only supported on Intel-based systems.
 
 ```bash
 docker run -it --runtime=runsc --rm alpine

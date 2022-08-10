@@ -46,10 +46,10 @@ function _feedback() {
 function help() {
   # Purposefully using tabs for the HEREDOC
   cat <<- HEREDOC
-	Preferred Usage: ./${0##*/} [--provider=abc123]
+  Preferred Usage: ./${0##*/} [--provider=(parallels|virtualbox)]
 
-	--provider=abc123     Use the abc123 provider
-	-h|--help             Usage details
+	--provider=virtualbox     Use the virtualbox provider
+	-h|--help                 Usage details
 	HEREDOC
 
   exit 0
@@ -74,11 +74,14 @@ while getopts "${OPTSPEC}" optchar; do
   esac
 done
 
-_feedback INFO "Using the provider ${PROVIDER}"
+if [[ "${PROVIDER}" != "parallels" && "${PROVIDER}" != "virtualbox" ]]; then
+  _feedback ERROR "Provider must be parallels or virtualbox; ${PROVIDER} was provided"
+fi
+
 vagrant box add "${OS}" --provider "${PROVIDER}" 2>/dev/null || true
 vagrant box update --box "${OS}" --provider "${PROVIDER}"
 OS="${OS}" vagrant up --provider "${PROVIDER}" "$@"
-vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
+OS="${OS}" vagrant ssh || if [[ $? == "255" ]]; then echo "Caught exit code 255"; else echo "Unhandled exception during vagrant ssh"; exit 1 ; fi
 while [ -z "${PROMPT}" ]; do
     read -rp "Do you want to destroy the VM (Y/n)? " PROMPT
     case "${PROMPT}" in
@@ -99,4 +102,3 @@ while [ -z "${PROMPT}" ]; do
 done
 
 _quit
-
