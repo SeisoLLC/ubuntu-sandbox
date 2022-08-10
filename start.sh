@@ -87,12 +87,12 @@ while [ -z "${PROMPT}" ]; do
     case "${PROMPT}" in
         ""|[yY]|[yY][eE][sS])
             _feedback INFO "Destroying the VM..."
-            vagrant destroy -f
+            OS="${OS}" vagrant destroy -f
             break
             ;;
         [nN]|[nN][oO])
             _feedback WARNING "Keeping the VM running..."
-            _feedback INFO "Run \`vagrant destroy -f\` when you are done"
+            _feedback INFO "Run \`OS="${OS}" vagrant destroy -f\` when you are done"
             ;;
         *)
             _feedback WARNING "Unknown response"
