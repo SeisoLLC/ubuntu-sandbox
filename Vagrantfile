@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     prl.memory = 8192
     prl.cpus = 2
 
-    # prl.update_guest_tools = true
+    prl.update_guest_tools = true
   end
 
   config.vm.provision "shell", path: "init.sh"
