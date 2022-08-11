@@ -4,8 +4,9 @@
 NAME = "ubuntu-sandbox"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/ubuntu-20.04"
+  config.vm.box = ENV['OS']
   config.vm.hostname = NAME
+  config.vm.define NAME
 
   # Setup the virtualbox provider
   config.vm.provider "virtualbox" do |vb|
@@ -18,57 +19,16 @@ Vagrant.configure("2") do |config|
     vb.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
   end
 
-  # Setup Docker and give the vagrant user permissions
-  config.vm.provision "shell", inline: <<-SHELL
-    set -o errtrace
-    set -o nounset
-    set -o errexit
-    set -o pipefail
+  # Setup the parallels provider
+  config.vm.provider "parallels" do |prl|
+    prl.name = NAME
 
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update
-    apt-get -y upgrade
-    apt-get -y install --no-install-recommends bpftrace \
-                                               cgroup-tools \
-                                               devscripts \
-                                               docker.io \
-                                               python3-pip \
-                                               libcap-ng-utils\
-                                               tor \
-                                               torsocks
-    pip3 install pysocks
+    # Customize the VM resources
+    prl.memory = 8192
+    prl.cpus = 2
 
-    # Kubernetes and related setup
-    snap install kubectl --classic
-    curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.11.0/kind-linux-amd64
-    chmod +x /usr/local/bin/kind
-
-    # gVisor and docker setup
-    URL=https://storage.googleapis.com/gvisor/releases/release/latest
-    wget --quiet ${URL}/runsc ${URL}/runsc.sha512 \
-      ${URL}/gvisor-containerd-shim ${URL}/gvisor-containerd-shim.sha512 \
-      ${URL}/containerd-shim-runsc-v1 ${URL}/containerd-shim-runsc-v1.sha512
-    sha512sum -c runsc.sha512 \
-      -c gvisor-containerd-shim.sha512 \
-      -c containerd-shim-runsc-v1.sha512
-    rm -f *.sha512
-    chmod a+rx runsc gvisor-containerd-shim containerd-shim-runsc-v1
-    mv runsc gvisor-containerd-shim containerd-shim-runsc-v1 /usr/local/bin
-    /usr/local/bin/runsc install
-    systemctl enable --now docker
-    systemctl restart docker
-    usermod -aG docker vagrant
-
-    # Firewall setup
-    ufw default allow outgoing
-    ufw default deny incoming
-    ufw allow in on eth0 to any port 22 proto tcp
-    ufw logging medium
-    echo "y" | ufw enable
-  SHELL
-
-  # Used to set the Vagrant machine name
-  config.vm.define NAME do |t|
+    prl.update_guest_tools = true
   end
-end
 
+  config.vm.provision "shell", path: "init.sh"
+end
